@@ -50,8 +50,6 @@ destrimed/
 ├── icon-384x384.png
 └── icon-512x512.png
 
-text
-
 ## 🔧 Configuration
 
 ### Thèmes
@@ -122,7 +120,6 @@ L'application utilise un Service Worker pour :
 ## 🚀 Déploiement
 
 ### Serveur web simple
-```bash
 # Avec Python
 python -m http.server 8000
 
@@ -181,5 +178,6 @@ Email : contact@destrimed.com
 Consultez la console du navigateur pour les erreurs
 
 Vérifiez la connexion Internet
+
 
 Exportez vos données régulièrement
