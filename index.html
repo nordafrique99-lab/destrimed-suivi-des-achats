@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>DestriMed - Suivi des Livraisons</title>
+		
+		<!-- PWA Manifest -->
+		<link rel="manifest" href="/manifest.json">
+		
+		<!-- Apple Touch Icon -->
+		<link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+		
+		<!-- Thème couleur pour mobile -->
+		<meta name="theme-color" content="#4a90e2">
+		
+		<!-- iOS Status Bar Style -->
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		
+		<!-- Afficher en plein écran sur iOS -->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		
+		<!-- Définir la page de démarrage -->
+		<meta name="mobile-web-app-capable" content="yes">
+		
+		<!-- Désactiver le zoom sur mobile -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		
+		<!-- Service Worker Registration -->
+		<script src="scripts/main.js" defer></script>
+		<!-- External CSS -->
+		<link rel="stylesheet" href="styles/main.css">
+		<!-- Bibliothèques locales pour l'exportation -->
+		<script src="scripts/xlsx.full.min.js"></script>
+		<script src="scripts/jspdf.umd.min.js"></script>
+		<script src="scripts/jspdf.plugin.autotable.min.js"></script>
+	</head>
+	<body>
+		<!-- Header avec logo, boutons d'exportation et sélecteur de thème -->
+		<header>
+			<div class="logo-container">
+				<div class="logo">DM</div>
+				<div class="company-name">DestriMed</div>
+			</div>
+			
+			<div class="header-controls">
+				<div class="export-buttons">
+					<button class="export-btn export-txt" id="exportTxtBtn">
+						<span class="export-icon">📄</span> Texte
+					</button>
+					<button class="export-btn export-excel" id="exportExcelBtn">
+						<span class="export-icon">📊</span> Excel
+					</button>
+					<button class="export-btn export-pdf" id="exportPdfBtn">
+						<span class="export-icon">📑</span> PDF
+					</button>
+				</div>
+				
+				<div class="theme-switch">
+					<span class="theme-label">Jour</span>
+					<label class="switch">
+						<input type="checkbox" id="themeToggle">
+						<span class="slider"></span>
+					</label>
+					<span class="theme-label">Nuit</span>
+				</div>
+			</div>
+		</header>
+		
+		<!-- Contenu principal avec le formulaire -->
+		<main>
+			<h1>Formulaire de Suivi des Livraisons</h1>
+			
+			<div class="form-container">
+				<form id="deliveryForm">
+					<div class="form-row">
+						<div class="form-group">
+							<label for="deliveryNumber">N° de bons livraison</label>
+							<input type="number" id="deliveryNumber" min="0" required placeholder="Entrez un nombre (0 ou plus)">
+						</div>
+						
+						<div class="form-group">
+							<label for="clientCode">Code client</label>
+							<input type="number" id="clientCode" required placeholder="Entrez le code client">
+						</div>
+					</div>
+					
+					<div class="form-row">
+						<div class="form-group">
+							<label for="totalAmount">Montant total (DT)</label>
+							<input type="number" id="totalAmount" min="0" step="0.01" required placeholder="Montant en dinars tunisiens">
+						</div>
+						
+						<div class="form-group">
+							<label for="agentName">Nom de l'agent responsable</label>
+							<select id="agentName" required>
+								<option value="">-- Sélectionnez un agent --</option>
+								<!-- Les agents seront ajoutés dynamiquement -->
+							</select>
+							
+							<!-- Section de gestion des agents -->
+							<div class="agent-management-container">
+								<div class="agent-management-header">
+									<h4>Gestion des agents</h4>
+									<button type="button" class="manage-agents-btn" id="manageAgentsBtn">
+										Gérer les agents
+									</button>
+								</div>
+								<small>Total: <span id="agentsCount">3</span> agent(s) disponible(s)</small>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-buttons">
+						<button type="button" class="reset-btn" id="resetBtn">Réinitialiser</button>
+						<button type="submit" class="submit-btn">Ajouter à la liste</button>
+					</div>
+				</form>
+			</div>
+			
+			<!-- Section pour afficher les données -->
+			<div class="data-section">
+				<div class="data-header">
+					<h2>Livraisons enregistrées</h2>
+					<div>
+						<span id="entriesCount">0</span> entrée(s)
+					</div>
+				</div>
+				
+				<div class="table-container">
+					<table id="deliveriesTable">
+						<thead>
+							<tr>
+								<th>N° livraison</th>
+								<th>Code client</th>
+								<th>Montant total</th>
+								<th>Agent responsable</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody id="tableBody">
+							<tr class="empty-row">
+								<td colspan="5">Aucune donnée enregistrée. Ajoutez votre première livraison ci-dessus.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+		
+		<!-- Footer avec date et email -->
+		<footer>
+			<div class="footer-left">
+				<span class="footer-label">Date du jour</span>
+				<span class="footer-value" id="currentDate"></span>
+			</div>
+			
+			<div class="footer-right">
+				<span class="footer-label">Email de contact</span>
+				<span class="footer-value">contact@destrimed.com</span>
+			</div>
+		</footer>
+		
+		<!-- Modal Box pour confirmation sécurisée -->
+		<div id="securityModal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 id="modalTitle">Confirmation requise</h3>
+				</div>
+				<div class="modal-body">
+					<p class="modal-message" id="modalMessage">Veuillez entrer le code de sécurité pour confirmer cette action.</p>
+					<input type="password" id="securityCode" class="modal-input" placeholder="____" maxlength="4" autocomplete="off">
+					<div class="modal-error" id="modalError"></div>
+				</div>
+				<div class="modal-buttons">
+					<button type="button" class="modal-btn modal-cancel" id="modalCancel">Annuler</button>
+					<button type="button" class="modal-btn modal-confirm" id="modalConfirm">Confirmer</button>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Modal Box pour gestion des agents -->
+		<div id="agentsModal" class="modal">
+			<div class="modal-content agent-modal-content">
+				<div class="modal-header">
+					<h3 id="agentsModalTitle">Gestion des Agents</h3>
+				</div>
+				<div class="modal-body">
+					<p class="modal-message">Liste des agents disponibles. Vous pouvez supprimer des agents existants ou en ajouter de nouveaux.</p>
+					
+					<div class="agents-list" id="agentsList">
+						<!-- Les agents seront affichés ici dynamiquement -->
+					</div>
+					
+					<div class="add-agent-section">
+						<h4 style="margin-bottom: 10px; color: #2c3e50;">Ajouter un nouvel agent</h4>
+						<div class="add-agent-input-group">
+							<input type="text" id="newAgentNameInput" class="add-agent-input" placeholder="Entrez le nom du nouvel agent">
+							<button type="button" id="addNewAgentBtn" class="add-agent-action-btn">Ajouter</button>
+						</div>
+						<small style="display: block; margin-top: 5px; color: #666;">Code de sécurité requis pour les actions sensibles : 1234</small>
+					</div>
+				</div>
+				<div class="modal-buttons">
+					<button type="button" class="modal-btn modal-cancel" id="agentsModalCancel">Fermer</button>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Script externe -->
+		<script src="scripts/script.js"></script>
+	</body>
+</html>

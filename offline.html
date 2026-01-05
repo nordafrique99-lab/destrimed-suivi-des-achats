@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DestriMed - Hors ligne</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .offline-container {
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px var(--shadow);
+            background-color: var(--header-bg);
+        }
+        
+        .offline-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #ff9800;
+        }
+        
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(74, 144, 226, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .reload-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .reload-btn:hover {
+            background-color: #3a7bc8;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📶</div>
+        <h1>Vous êtes hors ligne</h1>
+        <p>La connexion Internet a été perdue. Certaines fonctionnalités peuvent être limitées.</p>
+        
+        <div class="features">
+            <p><strong>✓ Fonctionnalités disponibles hors ligne :</strong></p>
+            <ul>
+                <li>Ajout et modification des livraisons</li>
+                <li>Consultation de l'historique</li>
+                <li>Exportation des données</li>
+                <li>Gestion des agents</li>
+            </ul>
+        </div>
+        
+        <p>Les données seront synchronisées automatiquement lorsque la connexion sera rétablie.</p>
+        
+        <button class="reload-btn" onclick="location.reload()">Réessayer la connexion</button>
+        <p style="margin-top: 15px; font-size: 14px; color: #666;">
+            <button onclick="window.history.back()" style="background: none; border: none; color: #4a90e2; cursor: pointer; text-decoration: underline;">
+                ← Retour
+            </button>
+        </p>
+    </div>
+    
+    <script>
+        // Vérifier périodiquement la connexion
+        function checkConnection() {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            }
+        }
+        
+        // Vérifier toutes les 5 secondes
+        setInterval(checkConnection, 5000);
+        
+        // Écouter le retour en ligne
+        window.addEventListener('online', function() {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
